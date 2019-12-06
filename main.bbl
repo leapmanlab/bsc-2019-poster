@@ -1,0 +1,14 @@
+\begin{thebibliography}{1}
+
+\bibitem{GuayDesigning2018}
+M.~Guay, Z.~Emam, A.~Anderson, and R.~Leapman, ``Designing deep neural networks
+  to automate segmentation for serial block-face electron microscopy,'' in {\em
+  15th {IEEE} International Symposium on Biomedical Imaging, {ISBI} 2018,
+  Washington, DC, USA, April 4-7, 2018}, pp.~405--408, 2018.
+
+\bibitem{Guay2018problems}
+M.~Guay, Z.~Emam, and R.~Leapman, ``Problems and progress in automating
+  electron microscopy segmentation,'' {\em Microscopy and Microanalysis},
+  vol.~24, no.~S1, pp.~508--509, 2018.
+
+\end{thebibliography}

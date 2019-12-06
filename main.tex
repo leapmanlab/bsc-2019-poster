@@ -7,6 +7,9 @@
 \usepackage{tcolorbox}
 \usepackage[outline]{contour}
 \usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
 \usepackage{subcaption}
 \captionsetup{labelformat=empty}
 \usepackage{lipsum}
@@ -19,6 +22,20 @@
 
 \definecolor{decoder}{HTML}{97CAFF}
 \definecolor{encoder}{HTML}{FFD28E}
+
+\makeatletter
+\def\thickhline{%
+  \noalign{\ifnum0=`}\fi\hrule \@height \thickarrayrulewidth \futurelet
+   \reserved@a\@xthickhline}
+\def\@xthickhline{\ifx\reserved@a\thickhline
+               \vskip\doublerulesep
+               \vskip-\thickarrayrulewidth
+             \fi
+      \ifnum0=`{\fi}}
+\makeatother
+
+\newlength{\thickarrayrulewidth}
+\setlength{\thickarrayrulewidth}{2\arrayrulewidth}
 
 \usetheme{confposter} % Use the confposter theme supplied with this template
 
@@ -66,12 +83,20 @@
 \setbeamercolor{headline}{bg=background}
 \setbeamercolor{background canvas}{bg=background}
 \setbeamercolor{itemize item}{fg=nibib1,bg=nibib1}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
 % 
 %----------------------------------------------------------------------------------------
 %	TITLE SECTION 
 %----------------------------------------------------------------------------------------
 
-\title{Dense Semantic Segmentation for Biomedical Electron Microscopy} % Poster title
+\title{Dense 3D Semantic Segmentation for Biomedical Electron Microscopy} % Poster title
 
 \author{{Matthew Guay (matthew.guay@nih.gov),} {Zeyad Emam,} {Adam Anderson,} {Maria Aronova,} {Richard Leapman (leapmanr@mail.nih.gov)}}%\\ ${}^*$} % Author(s)
 
@@ -127,31 +152,31 @@
     \begin{tcolorbox}[title=Introduction]
         \begin{itemize}
             \item Biomedicine uses \emph{electron microscopy} (EM) to study biological matter at the nanoscale.
-            \item New electron microscopes acquire large datasets quickly.
-            \item Serial block-face scanning electron microscopy (\emph{SBF-SEM}): Image up to $1\,\text{mm}^3$ biological samples at $\sim 5\times 5\times 25\,\text{nm}$ resolution by repeated cutting and scanning.
+            \item Serial block-face scanning electron microscopy (\emph{SBF-SEM}): Image up to $1\,\text{mm}^3$ biological samples at $\sim 5\times 5\times 25\,\text{nm}$ resolution - giga/teravoxel datasets possible.
             \item \emph{Systems biology} will greatly benefit from high-throughput EM, but data analysis is challenging.
-            
-            \item Major bottleneck is \emph{image segmentation}: grouping image voxels together according to image content.
-            \item \emph{Semantic} segmentation: Assign a ``class'' to each voxel in an image (cell, organelle, etc.). Main focus of this poster.
-            \item Lack of \emph{3D benchmark datasets} greatly hinders vision research.  %\emph{Instance} segmentation: Assign a unique tag to each object in an image. %the partitioning of an image into labeled regions corresponding to image content.
+            \item \emph{Dense semantic segmentation}: Create rich 3D structural models of all (most) cells and organelles in sample, as opposed to just parts.            
+            \item Challenging for computers, slow and challenging for humans.
+            \item \emph{Computer vision} (CV) algorithms use neural nets to predict segmentations from 3D image volumes.
+ %\emph{Instance} segmentation: Assign a unique tag to each object in an image. %the partitioning of an image into labeled regions corresponding to image content.
             
         \end{itemize}
     \end{tcolorbox}
     
     \begin{center}
         \begin{figure}
-            \includegraphics[width=\linewidth]{fig/segmentationintroshort.png}
-            \caption{Sample EM images, and their semantic segmentations. \textbf{Left}: SBF-SEM image of platelet cells. \textbf{Center}: TEM tomographic image of synaptic tissue, courtesy of NINDS Laboratory of Neurobiology. \textbf{Right}: Platinum-replica TEM tomographic image of a HeLa cell wall, courtesy of the NHLBI Taraska Lab.}
+            \includegraphics[width=\linewidth]{fig/intronew.png}
+            \caption{2D and 3D views of an SBF-SEM platelet dataset and a semantic model of its cells and organelles.}
         \end{figure}
     \end{center}
     
-    \begin{tcolorbox}[title=Segmentation Challenges]
+    \begin{tcolorbox}[title=Challenges]
         \begin{itemize}
             \item Training \emph{label generation} is tedious, and experts may disagree.
-            \item Lack of \emph{3D benchmark datasets} makes it hard to compare results and determine current sota.  %Different EM hardware + sample combinations create \emph{many image types}.
-            \item Segmentation automation difficulty is highly \emph{problem-dependent}.
-            \item \textbf{Goal}: A \emph{reproducible workflow} for effective neural instance segmentation, architecture discovery, training, and usage.
-            \item \textbf{Goal}: Release a high quality 3D benchmark dataset with helper tools for wide adoption. %Use that workflow to design \emph{problem-specific segmentation algorithms}.
+            \item Lack of \emph{3D benchmark datasets} makes it hard to compare and share tools for biomedical computer vision.  %Different EM hardware + sample combinations create \emph{many image types}.
+            \item Automated segmentation is still \emph{not accurate enough} for dense semantic segmentation of interesting biological EM datasets.
+            \item \textbf{Goal}: Better \emph{neural architectures} for more useful CV algorithms. 
+            \item \textbf{Goal}: Better \emph{software infrastructure} to turn CV algorithms into useful tools for microscopists.
+            \item \textbf{Goal}: Release high-quality \emph{3D benchmark datasets} to spur community development.
         \end{itemize}
     \end{tcolorbox}
 
@@ -167,18 +192,8 @@
 
     \begin{center}
         \begin{figure}
-            \begin{subfigure}{\onecolwid}
-                \includegraphics[width=\linewidth]{fig/fullnet-rearranged.png}
-                %\caption{Example of a hybrid-3D + CRF-RNN segmentation network, of the type found most effective on 3D SBF-SEM data so far. More info in the next box.}
-            \end{subfigure}
-            %\begin{subfigure}{.33\linewidth}
-            %    \includegraphics[width=.4\linewidth]{fig/ensemble.png}
-            %\end{subfigure}
-            \hfill
-            \begin{subfigure}{\onecolwid}
-                \includegraphics[width=\linewidth]{fig/top4.png}
-                %\caption{(\textbf{Top}) A collection of randomly-generated module trees for 2D encoder-decoder networks. Each module forms part of a final computation graph. (\textbf{Bottom}) Importance of ensembling for segmentation algorithms. Data and human ground-truth labelings are compared with the single best network and the best network ensemble from 100 random 2D encoder-decoder networks.}
-            \end{subfigure}
+            \includegraphics[width=\linewidth]{fig/result_imgs.png}
+            \caption{In the course of this project, we tested many configurations of 2D and 3D segmentation networks and ensembles. This figure shows results from the best 2D and 3D individual networks and ensembles. (\textbf{Top}) Comparison of 2D segmentation cross-sections on the evaluation dataset. (\textbf{Bottom}) Comparison of 3D renderings on one of the test cells from another platelet sample than the one used for training. Testing networks on the same tissue system but a different physical sample helps gauge how robust they are to image variations.}
         \end{figure}
     \end{center}
     
@@ -195,14 +210,6 @@
     %     \end{itemize}
     % \end{tcolorbox}
     
-    
-    
-    \vspace{1ex}
-    
-    
-    
-    \vspace{1ex}
-    
     \begin{columns}[t]
         
     
@@ -210,8 +217,10 @@
         \begin{tcolorbox}[title=Methods]
             \begin{itemize}
                 % \item \emph{2D vs 3D} tradeoffs: spatial context vs. memory usage, dealing with anisotropy along $z$ axis.
-                \item \emph{Hybrid-3D network}: Large 2D convolutional encoder-decoder module  forms intermediate predictions. Concatenated 2D predictions form input to a small 3D convolutional spatial pyramid module.
-                \item \emph{Extensive comparaisons against existing baselines} combined with \emph{ablation analyses} show the necessity of intrinsically 3D networks. 
+                \item \emph{Data}: Two SBF-SEM platelet volumes with 6 label classes: Cell, mitochondrion, alpha granule, canalicular system, dense granule, dense core.
+                \item \emph{2D-3D network}: Large 2D segmentation module forms intermediate predictions which are input to a smaller 3D segmentation module. Memory efficient, better observed results than 3D alone.
+                \item Run architecture generation experiments on \emph{Biowulf} to compare net design choices.
+                %\item \emph{Compare against existing baselines} combined with \emph{ablation analyses} to show we outperform the literature with \emph{$2D-3D + 3\times 3\times 3$ nets}.
                 %\item A 3D \emph{CRF-RNN} (conditional random field as recurrent neural network) module can be used as well.
                 %\item Hybrid-3D + CRF-RNN architecture is currently the best performer.
                 % \item \emph{Goal}: Segment a platelet EM image into constituent cells and organelles (mitochondria, canalicular system, alpha granules, dense granules).
@@ -223,9 +232,47 @@
                 % \item Goal is \emph{workflow acceleration}, so compare correction time with manual segmentation time.
             \end{itemize}
         \end{tcolorbox}
+    \begin{center}
+        \begin{figure}
+        \includegraphics[width=\linewidth]{fig/fullnet-rearranged.png}
+        \caption{Diagram of a typical 2D-3D network. A 2D (+3x3x3) encoder-decoder feeds class probabilities from successive 2D image windows into a 3D spatial pyramid module to produce a final segmentation prediction.}
+        \end{figure}
+    \end{center}
     \end{column}
     \begin{column}{\onecolwid}
-    \lipsum
+    	\begin{tcolorbox}[title=Results]
+    	\begin{itemize}
+    	\item Overall, a \emph{2D-3D+3x3x3} ensemble performs best on the test dataset, the best indicator of generalization ability. 
+    	\item 3x3x3 ablation better on eval. Difference is not significantly different from same-net variations between training sessions.
+    	\item 3D nets significantly better than 2D nets. Ensembles significantly better than individual nets.
+    	\item All LCIMB nets perform much better than existing baselines like U-Nets, DeeplabV3, DeepVess, and MedicalNet.
+    	\end{itemize}
+    	\end{tcolorbox}
+    	
+    	\bgroup
+\begin{table}
+\centering
+\def\arraystretch{1.2}
+\begin{tabular}{l l l}
+\thickhline
+Architecture & Eval MIOU & Test oMIOU\\
+\hline
+Ens. 2D-3D+3x3x3 4 & 0.686 & \textbf{0.553} \\
+Ens. Abl. 3x3x3 Convs 5 & \textbf{0.690} & 0.520 \\
+\hline
+Ens. 2D-3D 4 & 0.688 & 0.470 \\
+2D-3D+3x3x3 & 0.665 & 0.547 \\
+2D-3D & 0.650 & 0.477 \\
+Abl. 3x3x3 Convs & 0.667 & 0.466 \\
+Abl. Multi-Loss & 0.652 & 0.467 \\
+Abl. 3D Pyramid & 0.646 & 0.487 \\
+Ens. Abl. Multi-Loss 3 & 0.633 & 0.445 \\
+Ens. Abl. 3D Pyramid 3 & 0.681 & 0.533 \\
+\thickhline
+\end{tabular}
+\caption{3D network results summary. Mean intersection-over-union (MIOU) on eval data and organelle MIOU (oMIOU) on test data. 2D experiments and baselines not shown. \textit{Abl.} short for ablation, \textit{Ens.} short for ensemble. The test dataset contains only a small number of labeled cells among unlabeled ones; restricting the MIOU stat to the labeled region invalidates \texttt{cell} class statistics, hence the use of oMIOU.}
+\end{table}
+\egroup
     \end{column}
     
     \end{columns}
@@ -262,37 +309,24 @@
 % Fourth column
 \begin{column}{\onecolwid}
     
-    \begin{tcolorbox}[title=Summary of Results]
-        \begin{itemize}
-            \item We built \textbf{high-performing 3D EM segmentation} algorithms with a new architecture combining 2D and 3D convolutional processing modules.
-            \item Our hybrid 2d-3d network significantly outperforms existing methods (Unet, DeepLab, DeepVess) on 3D platelet EM data. 
-            \item Module architecture design made use of \emph{random module tree} sampling. % followed by \emph{black box} optimization.
-            %\item Random sampling strategy produces high-performance segmentation networks and requires little machine learning expertise.
-            %\item New scripting tools enable efficient, fault-tolerant distributed architecture search on Biowulf.
-            \item Resulting segmentation algorithms \emph{accelerate segmentation} for lab research workflows.
-            \item Released a benchmark dataset for 3D segmentation (see \emph{https://bio3d-vision.github.io/}).  
-            %\item Challenges:
-            %\begin{itemize}
-            %\item \emph{End-to-end} training of large networks with model-parallel multi-GPU.
-            %\item Deal with \emph{anomalies} in datasets not found in training data.
-            %\end{itemize}
-        \end{itemize}
-    \end{tcolorbox}
-    
     \begin{tcolorbox}[title=Future Work]
-        \begin{itemize}
-            \item \emph{Robust segmentation}: Train a single segmentation model that works across multiple datasets. %Requires transfer learning but also more.
-            \item \emph{Expand benchmark dataset}: Currently assembling a collection of annotated EM image volumes for release to the machine learning community.
-            \item Use a \emph{correction-training feedback loop} to produce large amounts of labeled training data.
-            \item Explore \emph{instance} segmentation tools.
+		\begin{itemize}
+            \item \emph{Robust segmentation}: Train a single segmentation model that works across multiple datasets. May involve:
+            \begin{itemize}
+            \item Transfer learning.
+            \item Hierarchical semantic schemas.
+            \end{itemize}
+            \item \emph{Panoptic segmentation} for biological EM: Combining semantic and instance segmentation to generate 3D object meshes and semantics from images.
+            \item \emph{Expand benchmark dataset}: Currently assembling a collection of annotated EM image volumes for release to the machine learning community. Currently requires improvements to ground-truth labels to be useful.
+            \item Use a \emph{correction-training feedback loop} to produce large amounts of labeled training data. Requires integrating machine learning tools with established in-lab analysis software.
             \item \emph{Active Learning:} Develop algorithms to determine which data is most \textit{informative}. 
-            %\item Work with collaborators to \emph{improve segmentation software} from preprocessing through data visualization.
+            \item \emph{Intramural collaboration} to build a biological microscopy scientific computing + machine learning team with the size necessary to address research and applications in their full scope.
         \end{itemize}
     \end{tcolorbox}
     
     \begin{tcolorbox}[title=References]
         \nocite{GuayDesigning2018}
-        \nocite{GuayTwo2019}
+        \nocite{Guay2018problems}
         \bibliographystyle{ieeetr}
         \bibliography{bib}
         
@@ -300,11 +334,9 @@
 
     \begin{tcolorbox}[title=Acknowledgements]
         \begin{itemize}
-            %\item This work was supported by the intramural research program of the National Institute of Biomedical Imaging and Bioengineering.
-            
-            \item This work made use of the computational resources of the NIH HPC Biowulf cluster. (https://hpc.nih.gov)
-            
-            %\item \textbf{View this poster online} at (\emph{https://leapmanlab.github.io/umd2019.pdf}).
+            \item This work made use of the computational resources of the \emph{NIH HPC Biowulf cluster}.
+            \item Data for this project was acquired in collaboration with Professor Brian Storrie's lab at UAMS (\href{https://physiology.uams.edu/faculty/brian-storrie/}{link}).            
+            \item \emph{View this poster online} at \href{https://leapmanlab.github.io/bsc-2019/poster.pdf}{https://leapmanlab.github.io/bsc-2019/poster.pdf}.
         \end{itemize}
     \end{tcolorbox}
     
