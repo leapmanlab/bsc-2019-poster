@@ -243,9 +243,9 @@
     	\begin{tcolorbox}[title=Results]
     	\begin{itemize}
     	\item Overall, a \emph{2D-3D+3x3x3} ensemble performs best on the test dataset, the best indicator of generalization ability. 
-    	\item 3x3x3 ablation better on eval. Difference is not significantly different from same-net variations between training sessions.
-    	\item 3D nets significantly better than 2D nets. Ensembles significantly better than individual nets.
-    	\item All LCIMB nets perform much better than existing baselines like U-Nets, DeeplabV3, DeepVess, and MedicalNet.
+    	\item 3x3x3 ablation better on eval. Difference is not significant compared with same-net variations between training sessions.
+    	\item 3D nets better than 2D nets. Ensembles better than individual nets.
+    	\item All LCIMB nets perform much better than existing baselines like DeeplabV3, DeepVess, and MedicalNet when trained on our segmentation task.
     	\end{itemize}
     	\end{tcolorbox}
     	
@@ -313,13 +313,13 @@ Ens. Abl. 3D Pyramid 3 & 0.681 & 0.533 \\
 		\begin{itemize}
             \item \emph{Robust segmentation}: Train a single segmentation model that works across multiple datasets. May involve:
             \begin{itemize}
-            \item Transfer learning.
-            \item Hierarchical semantic schemas.
+            \item Transfer learning of networks or network modules between datasets.
+            \item \emph{Hierarchical semantics}: Predict a hierarchy of both broad and narrow classes to better deal with unknown structures.
             \end{itemize}
             \item \emph{Panoptic segmentation} for biological EM: Combining semantic and instance segmentation to generate 3D object meshes and semantics from images.
-            \item \emph{Expand benchmark dataset}: Currently assembling a collection of annotated EM image volumes for release to the machine learning community. Currently requires improvements to ground-truth labels to be useful.
+            \item \emph{Expand benchmark dataset}: Currently assembling a collection of annotated EM image volumes for release to the machine learning community: \href{https://bio3d-vision.github.io/}{https://bio3d-vision.github.io/}.
             \item Use a \emph{correction-training feedback loop} to produce large amounts of labeled training data. Requires integrating machine learning tools with established in-lab analysis software.
-            \item \emph{Active Learning:} Develop algorithms to determine which data is most \textit{informative}. 
+            \item \emph{Active learning:} Develop algorithms to determine which data is most \textit{informative}. 
             \item \emph{Intramural collaboration} to build a biological microscopy scientific computing + machine learning team with the size necessary to address research and applications in their full scope.
         \end{itemize}
     \end{tcolorbox}
